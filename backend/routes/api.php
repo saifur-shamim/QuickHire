@@ -1,0 +1,21 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\JobController;
+use App\Http\Controllers\ApplicationController;
+
+Route::prefix('api')->group(function () {
+    // Jobs endpoints
+    Route::get('/jobs', [JobController::class, 'index']);
+    Route::post('/jobs', [JobController::class, 'store']);
+    Route::get('/jobs/{id}', [JobController::class, 'show']);
+    Route::put('/jobs/{id}', [JobController::class, 'update']);
+    Route::delete('/jobs/{id}', [JobController::class, 'destroy']);
+
+    // Applications endpoints
+    Route::post('/applications', [ApplicationController::class, 'store']);
+    Route::get('/applications', [ApplicationController::class, 'index']);
+    Route::get('/applications/{id}', [ApplicationController::class, 'show']);
+    Route::delete('/applications/{id}', [ApplicationController::class, 'destroy']);
+    Route::get('/jobs/{jobId}/applications', [ApplicationController::class, 'jobApplications']);
+});
