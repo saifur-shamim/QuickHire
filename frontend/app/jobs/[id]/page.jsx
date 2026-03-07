@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import JobDetailView from '@/components/jobs/JobDetailView';
+import { jobsAPI } from '@/services/api';
 
 export default function JobDetailPage() {
   const params = useParams();
@@ -15,10 +16,23 @@ export default function JobDetailPage() {
 
   useEffect(() => {
     if (jobId) {
-      // Fetch job detail from API when backend is ready
-      setLoading(false);
+      fetchJobDetail();
     }
   }, [jobId]);
+
+  const fetchJobDetail = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await jobsAPI.getById(jobId);
+      setJob(response.data);
+    } catch (err) {
+      console.error('Error fetching job:', err);
+      setError('Failed to load job details. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main className="w-full">

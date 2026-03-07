@@ -8,15 +8,27 @@ import CategoriesSection from '@/components/home/CategoriesSection';
 import FeaturedJobsSection from '@/components/home/FeaturedJobsSection';
 import LatestJobsSection from '@/components/home/LatestJobsSection';
 import AdminPromoBanner from '@/components/home/AdminPromoBanner';
+import { jobsAPI } from '@/services/api';
 
 export default function Home() {
   const [jobs, setJobs] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Jobs will be fetched from API when backend is ready
-    setLoading(false);
+    fetchJobs();
   }, []);
+
+  const fetchJobs = async () => {
+    try {
+      setLoading(true);
+      const response = await jobsAPI.getAll({ per_page: 50 });
+      setJobs(response.data || []);
+    } catch (err) {
+      console.error('Error fetching jobs:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main className="w-full">

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import axios from 'axios';
+import { applicationsAPI } from '@/services/api';
 
 export default function ApplicationForm({ job, onClose }) {
   const [formData, setFormData] = useState({
@@ -45,18 +45,19 @@ export default function ApplicationForm({ job, onClose }) {
         throw new Error('Cover note is required');
       }
 
-      // API call will be implemented when backend is ready
-      // const response = await axios.post('/api/applications', {
-      //   ...formData,
-      //   job_id: job.id,
-      // });
+      // Submit application to API
+      const response = await applicationsAPI.create({
+        ...formData,
+        job_id: job.id,
+      });
 
       setSuccess(true);
       setTimeout(() => {
         onClose();
       }, 2000);
     } catch (err) {
-      setError(err.message || 'An error occurred');
+      setError(err.message || 'Failed to submit application. Please try again.');
+      console.error('Application error:', err);
     } finally {
       setLoading(false);
     }
