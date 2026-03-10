@@ -48,7 +48,7 @@ export default function ApplicationForm({ job, onClose }) {
       // Submit application to API
       const response = await applicationsAPI.create({
         ...formData,
-        job_id: job.id,
+        job_listing_id: job.id,
       });
 
       setSuccess(true);

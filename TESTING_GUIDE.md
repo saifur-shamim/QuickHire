@@ -60,11 +60,41 @@ php artisan migrate
 # ✅ Triggered: 2024_01_01_000000_create_users_table (or similar)
 # ✅ Triggered: 2024_03_06_create_jobs_table
 # ✅ Triggered: 2024_03_06_create_applications_table
+# ✅ Triggered: 2026_03_11_000000_create_categories_table
+# ✅ Triggered: 2026_03_11_000001_update_job_listings_table
 ```
 
-**✓ Verify:** Check MySQL database for `jobs` and `applications` tables
+**✓ Verify:** Check MySQL database for `categories`, `job_listings`, and `job_applications` tables
 ```bash
 mysql quickhire -u root -p -e "SHOW TABLES;"
+```
+
+### Step 1.3.1: Seed Sample Categories (Important!)
+
+Before creating jobs, you must create categories in the database:
+
+```bash
+# Open MySQL console
+mysql quickhire -u root -p
+
+# Insert sample categories
+INSERT INTO categories (name, slug, created_at, updated_at) VALUES
+('Technology', 'technology', NOW(), NOW()),
+('Design', 'design', NOW(), NOW()),
+('Marketing', 'marketing', NOW(), NOW()),
+('Sales', 'sales', NOW(), NOW()),
+('Finance', 'finance', NOW(), NOW()),
+('Engineering', 'engineering', NOW(), NOW()),
+('Business', 'business', NOW(), NOW()),
+('Human Resource', 'human-resource', NOW(), NOW());
+
+# Exit MySQL
+exit
+```
+
+**✓ Verify:** Check if categories were created
+```bash
+mysql quickhire -u root -p -e "SELECT * FROM categories;"
 ```
 
 ### Step 1.4: Start Laravel Server
@@ -79,6 +109,43 @@ php artisan serve --host=0.0.0.0 --port=8000
 ```
 
 ✓ **Backend is ready at:** `http://localhost:8000`
+
+---
+
+## 📋 Database Schema Overview
+
+### After Updated Migrations
+
+Your database now has the following tables:
+
+**categories (NEW - March 11)**
+- `id` - Primary Key
+- `name` - Category name (e.g., "Technology", "Design")
+- `slug` - URL slug (e.g., "technology", "design")
+- `created_at`, `updated_at` - Timestamps
+
+**job_listings** (Updated - March 11)
+- `id` - Primary Key
+- `title`, `company`, `location` - Job basics
+- `category_id` - Foreign Key to categories table (NEW)
+- `type` - Job type (Full Time, Part Time, etc.)
+- `salary_min`, `salary_max` - Salary range
+- `description`, `requirements`, `benefits` - Job details
+- `logo` - Company logo/icon
+- `is_featured` - Boolean to mark as featured (NEW)
+- `created_at`, `updated_at` - Timestamps
+
+**job_applications** (Unchanged)
+- `id` - Primary Key
+- `job_listing_id` - Foreign Key to job_listings
+- `name`, `email` - Applicant info
+- `resume_link`, `cover_note` - Application details
+- `created_at`, `updated_at` - Timestamps
+
+**Important Changes:**
+- Category is now a **database relationship** instead of a text field
+- Jobs can be marked as **featured** for the featured jobs section
+- Better database normalization and data integrity
 
 ---
 
@@ -142,13 +209,14 @@ curl -X POST http://localhost:8000/api/jobs \
     "title": "Senior React Developer",
     "company": "Tech Corp",
     "location": "New York, USA",
-    "category": "Engineering",
+    "category_id": 1,
     "type": "Full Time",
     "salary_min": 100000,
     "salary_max": 150000,
     "description": "Looking for an experienced React developer.",
     "requirements": ["React", "Node.js", "SQL"],
-    "benefits": ["Health insurance", "Remote work"]
+    "benefits": ["Health insurance", "Remote work"],
+    "is_featured": true
   }'
 ```
 
@@ -169,7 +237,7 @@ curl http://localhost:8000/api/jobs/1
 curl -X POST http://localhost:8000/api/applications \
   -H "Content-Type: application/json" \
   -d '{
-    "job_id": 1,
+    "job_listing_id": 1,
     "name": "John Doe",
     "email": "john@example.com",
     "resume_link": "https://example.com/resume.pdf",
@@ -180,6 +248,26 @@ curl -X POST http://localhost:8000/api/applications \
 **Get All Applications:**
 ```bash
 curl http://localhost:8000/api/applications
+```
+
+#### 3.3: Test Categories API (New)
+
+**Get All Categories:**
+```bash
+curl http://localhost:8000/api/categories
+```
+
+**Expected Response:**
+```json
+{
+  "success": true,
+  "message": "Categories retrieved successfully",
+  "data": [
+    {"id": 1, "name": "Technology", "slug": "technology", "created_at": "...", "updated_at": "..."},
+    {"id": 2, "name": "Design", "slug": "design", "created_at": "...", "updated_at": "..."},
+    ...
+  ]
+}
 ```
 
 ---
@@ -214,7 +302,7 @@ Open `http://localhost:3000` in your browser
 **What to verify:**
 - ✅ Job listings load from API
 - ✅ Search box works (type job title)
-- ✅ Category filter works
+- ✅ Category filter works (now using category IDs)
 - ✅ Location filter works
 - ✅ Jobs display in grid/list
 - ✅ Pagination works (if more than display limit)
@@ -225,10 +313,28 @@ Open `http://localhost:3000` in your browser
 1. Type "React" in search box
 2. Should filter jobs containing "React"
 
-**Test Filter:**
-1. Select category from dropdown
+**Test Category Filter:**
+1. Select category from dropdown (uses category names from database)
 2. Should show only jobs in that category
-3. Repeat with location filter
+3. Category filtering now uses database category relationships
+
+### 4.2.1: Test Featured Jobs Section (New Feature)
+
+**From home page:** Scroll to "Featured jobs" section
+
+**What to verify:**
+- ✅ Featured section shows only jobs marked as `is_featured = true`
+- ✅ Shows maximum 8 featured jobs
+- ✅ Displays in 4-column grid layout
+- ✅ If no featured jobs exist, shows "No featured jobs available right now"
+- ✅ "Show all jobs" link works
+
+**To create featured jobs:**
+1. Go to `/admin` (Admin Dashboard)
+2. Click "Add New Job"
+3. Fill all fields and **check** "Mark as Featured Job" checkbox
+4. Submit the form
+5. Return to home page and verify job appears in Featured jobs section
 
 ### 4.3: Test Job Detail Page
 
@@ -287,15 +393,20 @@ mysql quickhire -u root -p -e "SELECT * FROM applications;"
    - Title: "Test Job"
    - Company: "Test Company"
    - Location: "Test City"
-   - Category: "Engineering"
+   - **Category:** Select from dropdown (now fetches from database categories)
    - Type: "Full Time"
-   - Salary: 60000 - 100000
+   - Minimum Salary: 60000
+   - Maximum Salary: 100000
+   - **Featured Job:** Check box to mark as featured (optional)
    - Description: "Test description"
-   - Requirements: ["Requirement 1", "Requirement 2"]
-   - Benefits: ["Benefit 1"]
+   - Requirements: Enter requirements (one per line)
+   - Benefits: Enter benefits (one per line)
 3. Click Submit
 4. Verify success message
-5. New job appears in home page and jobs listing
+5. New job appears in:
+   - Home page > Latest jobs section
+   - If marked featured: Home page > Featured jobs section
+   - Jobs listing page
 
 **Test Delete Job:**
 1. Click Delete button on any job
@@ -366,23 +477,36 @@ php artisan serve --host=0.0.0.0 --port=8000
 
 ## ✅ STEP 7: Database Verification
 
-### View Created Jobs
+### View Database Tables and Records
 
 ```bash
 mysql quickhire -u root -p
 
-# Show all jobs
-SELECT id, title, company, category FROM jobs;
+# Show all categories
+SELECT id, name, slug FROM categories;
+
+# Show all jobs (with category info)
+SELECT id, title, company, category_id, is_featured FROM job_listings;
 
 # Show all applications
-SELECT id, job_id, name, email FROM applications;
+SELECT id, job_listing_id, name, email FROM job_applications;
 
 # Count records
-SELECT COUNT(*) FROM jobs;
-SELECT COUNT(*) FROM applications;
+SELECT COUNT(*) as total_categories FROM categories;
+SELECT COUNT(*) as total_jobs FROM job_listings;
+SELECT COUNT(*) as total_applications FROM job_applications;
+
+# Show featured jobs only
+SELECT id, title, company, is_featured FROM job_listings WHERE is_featured = true;
 
 exit
 ```
+
+**Expected Output:**
+- ✅ Categories table has 8 default categories (Technology, Design, Marketing, etc.)
+- ✅ Job listings show category_id (foreign key) instead of category text
+- ✅ Job listings have is_featured column with true/false values
+- ✅ Job applications reference job_listing_id
 
 ---
 
@@ -529,14 +653,32 @@ npm install
 npm run dev
 npm run build
 
-# Database
+# Database - Setup
 mysql -u root -p
 CREATE DATABASE quickhire;
 USE quickhire;
 SHOW TABLES;
-SELECT * FROM jobs;
 
-# Useful checks
+# Database - View Data
+SELECT * FROM categories;
+SELECT * FROM job_listings;
+SELECT * FROM job_applications;
+SELECT * FROM jobs; # Laravel queue table (ignore)
+
+# API Endpoints - Jobs
+curl http://localhost:8000/api/jobs
+curl http://localhost:8000/api/jobs/1
+curl http://localhost:8000/api/jobs?featured=true # Get featured jobs only
+curl http://localhost:8000/api/jobs?category_id=1 # Get jobs by category
+
+# API Endpoints - Categories (New)
+curl http://localhost:8000/api/categories
+
+# API Endpoints - Applications
+curl http://localhost:8000/api/applications
+curl http://localhost:8000/api/jobs/1/applications
+
+# Useful system checks
 curl http://localhost:8000/api/jobs
 curl http://localhost:3000
 lsof -i :8000  # Check if port 8000 is in use

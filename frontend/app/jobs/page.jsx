@@ -1,31 +1,82 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import JobsListingView from '@/components/jobs/JobsListingView';
-import { jobsAPI } from '@/services/api';
+import { jobsAPI, categoriesAPI } from '@/services/api';
 
 export default function JobsPage() {
+  const searchParams = useSearchParams();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filteredJobs, setFilteredJobs] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoaded, setCategoriesLoaded] = useState(false);
 
+  // Fetch categories on mount (FIRST, before reading URL params)
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await categoriesAPI.getAll();
+        setCategories(response.data || []);
+        setCategoriesLoaded(true);
+      } catch (err) {
+        console.error('Error fetching categories:', err);
+        setCategoriesLoaded(true); // Still mark as loaded even if error
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  // Read URL parameters AFTER categories are loaded
+  useEffect(() => {
+    if (!categoriesLoaded) return;
+
+    const categoryParam = searchParams.get('category');
+    if (categoryParam) {
+      // Normalize the category name to match database case
+      const normalizedCategory = categoryParam
+        .split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+      setSelectedCategory(normalizedCategory);
+    }
+    
+    const searchParam = searchParams.get('search');
+    if (searchParam) {
+      setSearchTerm(searchParam);
+    }
+  }, [searchParams, categoriesLoaded]);
+
+  // Fetch jobs when filters change
   useEffect(() => {
     fetchJobs();
-  }, []);
+  }, [selectedCategory, searchTerm, selectedLocation, categories]);
 
   const fetchJobs = async () => {
     try {
       setLoading(true);
       setError(null);
+      
+      // Find category_id from category name
+      let categoryId = '';
+      if (selectedCategory && categories.length > 0) {
+        const category = categories.find(
+          cat => cat.name.toLowerCase() === selectedCategory.toLowerCase()
+        );
+        if (category) {
+          categoryId = category.id;
+        }
+      }
+
       const response = await jobsAPI.getAll({
         search: searchTerm,
-        category: selectedCategory,
+        category_id: categoryId, // Send numeric ID to API
         location: selectedLocation,
         per_page: 50,
       });
@@ -38,37 +89,11 @@ export default function JobsPage() {
     }
   };
 
-  useEffect(() => {
-    delayedSearch();
-  }, [searchTerm, selectedCategory, selectedLocation]);
-
-  const delayedSearch = () => {
-    const timer = setTimeout(() => {
-      fetchJobs();
-    }, 500);
-    return () => clearTimeout(timer);
-  };
-
-  useEffect(() => {
-    // Local filter jobs based on API response
-    let filtered = jobs.filter(job => {
-      const matchSearch = job.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         job.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         job.description?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchCategory = !selectedCategory || job.category === selectedCategory;
-      const matchLocation = !selectedLocation || job.location === selectedLocation;
-      
-      return matchSearch && matchCategory && matchLocation;
-    });
-    
-    setFilteredJobs(filtered);
-  }, [jobs, searchTerm, selectedCategory, selectedLocation]);
-
   return (
     <main className="w-full">
       <Header />
       <JobsListingView
-        jobs={filteredJobs}
+        jobs={jobs}
         loading={loading}
         error={error}
         searchTerm={searchTerm}

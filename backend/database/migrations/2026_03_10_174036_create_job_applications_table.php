@@ -11,17 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('applications', function (Blueprint $table) {
+        Schema::create('job_applications', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('job_id');
+            $table->foreignId('job_listing_id')->constrained('job_listings')->onDelete('cascade');
             $table->string('name');
             $table->string('email');
             $table->string('resume_link');
             $table->longText('cover_note');
             $table->timestamps();
-
-            // Foreign key
-            $table->foreign('job_id')->references('id')->on('jobs')->onDelete('cascade');
         });
     }
 
@@ -30,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('applications');
+        Schema::dropIfExists('job_applications');
     }
 };

@@ -18,9 +18,9 @@ class ApplicationController extends Controller
         try {
             $query = Application::with('job');
 
-            // Filter by job_id
-            if ($request->has('job_id')) {
-                $query->where('job_id', $request->input('job_id'));
+            // Filter by job_listing_id
+            if ($request->has('job_listing_id')) {
+                $query->where('job_listing_id', $request->input('job_listing_id'));
             }
 
             $per_page = $request->input('per_page', 20);
@@ -113,7 +113,7 @@ class ApplicationController extends Controller
                 ], 404);
             }
 
-            $applications = Application::where('job_id', $jobId)
+            $applications = Application::where('job_listing_id', $jobId)
                 ->orderByDesc('created_at')
                 ->get();
 

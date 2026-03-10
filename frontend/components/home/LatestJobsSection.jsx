@@ -1,83 +1,10 @@
 import Link from 'next/link';
 import JobCard from '@/components/jobs/JobCard';
 
-// Sample latest jobs data
-const latestJobsData = [
-  {
-    id: 1,
-    title: 'Social Media Assistant',
-    company: 'Nomad',
-    location: 'Paris, France',
-    type: 'Full Time',
-    categories: ['Marketing'],
-    logo: '📱',
-  },
-  {
-    id: 2,
-    title: 'Social Media Assistant',
-    company: 'Notify',
-    location: 'Paris, France',
-    type: 'Full Time',
-    categories: ['Marketing'],
-    logo: '📢',
-  },
-  {
-    id: 3,
-    title: 'Brand Designer',
-    company: 'Dropbox',
-    location: 'San Francisco, USA',
-    type: 'Full Time',
-    categories: ['Design'],
-    logo: '🎨',
-  },
-  {
-    id: 4,
-    title: 'Brand Designer',
-    company: 'Musk',
-    location: 'San Francisco, USA',
-    type: 'Full Time',
-    categories: ['Design'],
-    logo: '✨',
-  },
-  {
-    id: 5,
-    title: 'Interactive Developer',
-    company: 'Terraform',
-    location: 'Hamburg, Germany',
-    type: 'Full Time',
-    categories: ['Technology', 'Engineering'],
-    logo: '💻',
-  },
-  {
-    id: 6,
-    title: 'Interactive Developer',
-    company: 'Terraform',
-    location: 'Hamburg, Germany',
-    type: 'Full Time',
-    categories: ['Technology'],
-    logo: 'Md Morshed',
-  },
-  {
-    id: 7,
-    title: 'HR Manager',
-    company: 'Postier',
-    location: 'Lusern, Switzerland',
-    type: 'Full Time',
-    categories: ['Human Resource', 'Business'],
-    logo: '👥',
-  },
-  {
-    id: 8,
-    title: 'Social Media Assistant',
-    company: 'Notify',
-    location: 'Paris, France',
-    type: 'Full Time',
-    categories: ['Marketing'],
-    logo: '📲',
-  },
-];
+export default function LatestJobsSection({ jobs = [], loading = false }) {
+  // Show latest 8 jobs (already sorted by created_at desc from API)
+  const latestJobs = jobs.slice(0, 8);
 
-export default function LatestJobsSection() {
   return (
     <section className="py-16 md:py-20 bg-white">
       <div className="container-custom">
@@ -94,12 +21,25 @@ export default function LatestJobsSection() {
           </Link>
         </div>
 
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary"></div>
+          </div>
+        )}
+
         {/* Jobs List */}
-        <div className="grid grid-cols-1 gap-4 md:gap-6">
-          {latestJobsData.map((job) => (
-            <JobCard key={job.id} job={job} featured={false} />
-          ))}
-        </div>
+        {!loading && latestJobs.length > 0 ? (
+          <div className="grid grid-cols-1 gap-4 md:gap-6">
+            {latestJobs.map((job) => (
+              <JobCard key={job.id} job={job} featured={false} />
+            ))}
+          </div>
+        ) : !loading ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">No jobs available right now</p>
+          </div>
+        ) : null}
       </div>
     </section>
   );

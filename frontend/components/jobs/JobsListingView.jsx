@@ -1,71 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import JobCard from './JobCard';
-
-// Sample jobs data for demo
-const allJobsData = [
-  {
-    id: 1,
-    title: 'Email Marketing',
-    company: 'Recruit',
-    location: 'Madrid, Spain',
-    type: 'Full Time',
-    categories: ['Marketing'],
-    logo: '📧',
-  },
-  {
-    id: 2,
-    title: 'Senior Designer',
-    company: 'Dropbox',
-    location: 'San Francisco, US',
-    type: 'Full Time',
-    categories: ['Design'],
-    logo: '🎨',
-  },
-  {
-    id: 3,
-    title: 'Email Marketing',
-    company: 'Pitch',
-    location: 'Berlin, Germany',
-    type: 'Full Time',
-    categories: ['Marketing'],
-    logo: '✉️',
-  },
-  {
-    id: 4,
-    title: 'Visual Designer',
-    company: 'Blinket',
-    location: 'Granada, Spain',
-    type: 'Full Time',
-    categories: ['Design'],
-    logo: '👁️',
-  },
-  {
-    id: 5,
-    title: 'Product Designer',
-    company: 'ClassPass',
-    location: 'Manchester, UK',
-    type: 'Full Time',
-    categories: ['Design'],
-    logo: '🎯',
-  },
-  {
-    id: 6,
-    title: 'Social Media Assistant',
-    company: 'Nomad',
-    location: 'Paris, France',
-    type: 'Full Time',
-    categories: ['Marketing'],
-    logo: '📱',
-  },
-];
-
-const categories = ['Design', 'Marketing', 'Sales', 'Finance', 'Technology', 'Engineering', 'Business', 'Human Resource'];
-const locations = ['Madrid, Spain', 'San Francisco, US', 'Berlin, Germany', 'Granada, Spain', 'Manchester, UK', 'Paris, France'];
+import { categoriesAPI } from '@/services/api';
 
 export default function JobsListingView({
+  jobs = [],
+  loading = false,
+  error = null,
   searchTerm,
   setSearchTerm,
   selectedCategory,
@@ -74,13 +17,45 @@ export default function JobsListingView({
   setSelectedLocation,
 }) {
   const [showFilters, setShowFilters] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [locations, setLocations] = useState([]);
 
-  // Filter jobs
-  const filteredJobs = allJobsData.filter(job => {
-    const matchSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                       job.company.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchCategory = !selectedCategory || job.categories.includes(selectedCategory);
-    const matchLocation = !selectedLocation || job.location === selectedLocation;
+  // Fetch categories from API on component mount
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await categoriesAPI.getAll();
+      setCategories(response.data || []);
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+    }
+  };
+
+  // Extract unique locations from jobs
+  useEffect(() => {
+    if (jobs && jobs.length > 0) {
+      const uniqueLocations = [...new Set(jobs.map(job => job.location))].sort();
+      setLocations(uniqueLocations);
+    }
+  }, [jobs]);
+
+  // Filter jobs based on search and selected filters
+  const filteredJobs = jobs.filter(job => {
+    const matchSearch = !searchTerm || 
+      job.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Note: Category filtering is already done by API (category_id parameter)
+    // So we don't need to filter again here - just keep for reference
+    // But make it case-insensitive if needed
+    const matchCategory = !selectedCategory || 
+      (job.category && job.category.name.toLowerCase() === selectedCategory.toLowerCase());
+    
+    const matchLocation = !selectedLocation || job.location?.toLowerCase() === selectedLocation?.toLowerCase();
     
     return matchSearch && matchCategory && matchLocation;
   });
@@ -94,9 +69,16 @@ export default function JobsListingView({
             Find your dream job
           </h1>
           <p className="text-gray-600">
-            Showing {filteredJobs.length} of {allJobsData.length} jobs
+            {loading ? 'Loading jobs...' : `Showing ${filteredJobs.length} of ${jobs.length} jobs`}
           </p>
         </div>
+
+        {/* Error State */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg mb-8">
+            {error}
+          </div>
+        )}
 
         {/* Search and Filters */}
         <div className="bg-white rounded-xl shadow-md p-6 mb-8">
@@ -134,7 +116,7 @@ export default function JobsListingView({
                 >
                   <option value="">All Categories</option>
                   {categories.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
+                    <option key={cat.id} value={cat.name}>{cat.name}</option>
                   ))}
                 </select>
               </div>
@@ -182,34 +164,45 @@ export default function JobsListingView({
           )}
         </div>
 
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center items-center py-16">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary"></div>
+          </div>
+        )}
+
         {/* Jobs List */}
-        {filteredJobs.length > 0 ? (
+        {!loading && filteredJobs.length > 0 ? (
           <div className="grid grid-cols-1 gap-6">
             {filteredJobs.map(job => (
               <JobCard key={job.id} job={job} featured={false} />
             ))}
           </div>
-        ) : (
+        ) : !loading ? (
           <div className="text-center py-16">
             <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">No jobs found</h3>
             <p className="text-gray-600 mb-6">
-              Try adjusting your search or filters to find more jobs.
+              {jobs.length === 0 
+                ? 'No jobs available right now. Check back soon!'
+                : 'Try adjusting your search or filters to find more jobs.'}
             </p>
-            <button
-              onClick={() => {
-                setSearchTerm('');
-                setSelectedCategory('');
-                setSelectedLocation('');
-              }}
-              className="btn-primary"
-            >
-              Clear Filters
-            </button>
+            {jobs.length > 0 && (
+              <button
+                onClick={() => {
+                  setSearchTerm('');
+                  setSelectedCategory('');
+                  setSelectedLocation('');
+                }}
+                className="btn-primary"
+              >
+                Clear Filters
+              </button>
+            )}
           </div>
-        )}
+        ) : null}
       </div>
     </section>
   );

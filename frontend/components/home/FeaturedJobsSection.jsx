@@ -1,83 +1,10 @@
 import Link from 'next/link';
 import JobCard from '@/components/jobs/JobCard';
 
-// Sample featured jobs data
-const jobsData = [
-  {
-    id: 1,
-    title: 'Email Marketing',
-    company: 'Recruit',
-    location: 'Madrid, Spain',
-    type: 'Full Time',
-    categories: ['Marketing', 'Design'],
-    logo: '📧',
-  },
-  {
-    id: 2,
-    title: 'Senior Designer',
-    company: 'Dropbox',
-    location: 'San Francisco, US',
-    type: 'Full Time',
-    categories: ['Design'],
-    logo: '🎨',
-  },
-  {
-    id: 3,
-    title: 'Email Marketing',
-    company: 'Pitch',
-    location: 'Berlin, Germany',
-    type: 'Full Time',
-    categories: ['Marketing', 'Sales'],
-    logo: '✉️',
-  },
-  {
-    id: 4,
-    title: 'Visual Designer',
-    company: 'Blinket',
-    location: 'Granada, Spain',
-    type: 'Full Time',
-    categories: ['Design'],
-    logo: '👁️',
-  },
-  {
-    id: 5,
-    title: 'Product Designer',
-    company: 'ClassPass',
-    location: 'Manchester, UK',
-    type: 'Full Time',
-    categories: ['Design', 'Marketing'],
-    logo: '🎯',
-  },
-  {
-    id: 6,
-    title: 'Lead Designer',
-    company: 'Canva',
-    location: 'Ontario, Canada',
-    type: 'Full Time',
-    categories: ['Design'],
-    logo: '🖼️',
-  },
-  {
-    id: 7,
-    title: 'Brand Strategist',
-    company: 'Coloway',
-    location: 'Monccle, France',
-    type: 'Full Time',
-    categories: ['Marketing', 'Business'],
-    logo: '💡',
-  },
-  {
-    id: 8,
-    title: 'Data Analyst',
-    company: 'Twitter',
-    location: 'San Diego, US',
-    type: 'Full Time',
-    categories: ['Technology'],
-    logo: '📊',
-  },
-];
+export default function FeaturedJobsSection({ jobs = [], loading = false }) {
+  // Filter jobs to show only featured ones
+  const featuredJobs = jobs.filter(job => job.is_featured === true).slice(0, 8);
 
-export default function FeaturedJobsSection() {
   return (
     <section className="py-16 md:py-20 bg-white">
       <div className="container-custom">
@@ -94,12 +21,25 @@ export default function FeaturedJobsSection() {
           </Link>
         </div>
 
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary"></div>
+          </div>
+        )}
+
         {/* Jobs Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {jobsData.map((job) => (
-            <JobCard key={job.id} job={job} featured={true} />
-          ))}
-        </div>
+        {!loading && featuredJobs.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredJobs.map((job) => (
+              <JobCard key={job.id} job={job} featured={true} />
+            ))}
+          </div>
+        ) : !loading ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">No featured jobs available right now</p>
+          </div>
+        ) : null}
       </div>
     </section>
   );

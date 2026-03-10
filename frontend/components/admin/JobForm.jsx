@@ -1,31 +1,48 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { jobsAPI } from '@/services/api';
 
-const categories = ['Design', 'Marketing', 'Sales', 'Finance', 'Technology', 'Engineering', 'Business', 'Human Resource'];
 const jobTypes = ['Full Time', 'Part Time', 'Internship', 'Freelance'];
 
 export default function JobForm({ job = null, onSubmit, onClose }) {
+  const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
     title: job?.title || '',
     company: job?.company || '',
     location: job?.location || '',
-    category: job?.category || '',
+    category_id: job?.category_id || '',
     type: job?.type || '',
     description: job?.description || '',
-    requirements: job?.requirements || '',
-    benefits: job?.benefits || '',
-    salary: job?.salary || '',
+    requirements: job?.requirements?.join('\n') || '',
+    benefits: job?.benefits?.join('\n') || '',
+    salary_min: job?.salary_min || '',
+    salary_max: job?.salary_max || '',
+    is_featured: job?.is_featured || false,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Fetch categories on component mount
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/categories`);
+      setCategories(response.data.data || []);
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+    }
+  };
+
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value,
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
@@ -39,14 +56,25 @@ export default function JobForm({ job = null, onSubmit, onClose }) {
       if (!formData.title.trim()) throw new Error('Job title is required');
       if (!formData.company.trim()) throw new Error('Company name is required');
       if (!formData.location.trim()) throw new Error('Location is required');
-      if (!formData.category) throw new Error('Category is required');
+      if (!formData.category_id) throw new Error('Category is required');
       if (!formData.type) throw new Error('Job type is required');
       if (!formData.description.trim()) throw new Error('Job description is required');
 
-      // API call will be implemented when backend is ready
-      // const response = await axios.post('/api/jobs', formData);
+      const submitData = {
+        title: formData.title,
+        company: formData.company,
+        location: formData.location,
+        category_id: parseInt(formData.category_id),
+        type: formData.type,
+        description: formData.description,
+        requirements: formData.requirements ? formData.requirements.split('\n').filter(r => r.trim()) : [],
+        benefits: formData.benefits ? formData.benefits.split('\n').filter(b => b.trim()) : [],
+        salary_min: formData.salary_min ? parseFloat(formData.salary_min) : null,
+        salary_max: formData.salary_max ? parseFloat(formData.salary_max) : null,
+        is_featured: formData.is_featured,
+      };
 
-      await onSubmit(formData);
+      await onSubmit(submitData);
     } catch (err) {
       setError(err.message || 'An error occurred');
     } finally {
@@ -135,15 +163,15 @@ export default function JobForm({ job = null, onSubmit, onClose }) {
                 Category *
               </label>
               <select
-                name="category"
-                value={formData.category}
+                name="category_id"
+                value={formData.category_id}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 required
               >
                 <option value="">Select category</option>
                 {categories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
                 ))}
               </select>
             </div>
@@ -167,19 +195,49 @@ export default function JobForm({ job = null, onSubmit, onClose }) {
             </div>
           </div>
 
-          {/* Salary */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Salary Range
-            </label>
+          {/* Salary Min and Max */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Minimum Salary
+              </label>
+              <input
+                type="number"
+                name="salary_min"
+                value={formData.salary_min}
+                onChange={handleChange}
+                placeholder="e.g., 80000"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Maximum Salary
+              </label>
+              <input
+                type="number"
+                name="salary_max"
+                value={formData.salary_max}
+                onChange={handleChange}
+                placeholder="e.g., 120000"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+          </div>
+
+          {/* Featured Checkbox */}
+          <div className="flex items-center gap-3">
             <input
-              type="text"
-              name="salary"
-              value={formData.salary}
+              type="checkbox"
+              id="is_featured"
+              name="is_featured"
+              checked={formData.is_featured}
               onChange={handleChange}
-              placeholder="e.g., $80,000 - $120,000"
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary cursor-pointer"
             />
+            <label htmlFor="is_featured" className="text-sm font-semibold text-gray-900 cursor-pointer">
+              Mark as Featured Job
+            </label>
           </div>
 
           {/* Description */}

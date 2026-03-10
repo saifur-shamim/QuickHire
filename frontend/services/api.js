@@ -106,4 +106,17 @@ export const applicationsAPI = {
   },
 };
 
+// Categories endpoints
+export const categoriesAPI = {
+  // Get all categories
+  getAll: async () => {
+    try {
+      const response = await apiClient.get('/categories');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+};
+
 export default apiClient;

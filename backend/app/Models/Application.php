@@ -8,8 +8,10 @@ use App\Models\Job;
 
 class Application extends Model
 {
+    protected $table = 'job_applications';
+
     protected $fillable = [
-        'job_id',
+        'job_listing_id',
         'name',
         'email',
         'resume_link',
@@ -21,5 +23,6 @@ class Application extends Model
      */
     public function job(): BelongsTo
     {
-        return $this->belongsTo(Job::class);
-    }}
+        return $this->belongsTo(Job::class, 'job_listing_id');
+    }
+}

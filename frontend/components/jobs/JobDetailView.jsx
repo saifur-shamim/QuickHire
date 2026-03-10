@@ -188,7 +188,7 @@ export default function JobDetailView({ job = null, loading = false, error = nul
                   <p className="text-sm text-gray-600 mb-2">Category</p>
                   <div className="flex gap-2 flex-wrap">
                     <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-medium">
-                      {jobData.category}
+                      {jobData.category?.name || 'Uncategorized'}
                     </span>
                   </div>
                 </div>

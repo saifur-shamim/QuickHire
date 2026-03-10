@@ -28,7 +28,7 @@ export default function JobsList({ jobs, onEdit, onDelete }) {
               </td>
               <td className="px-6 py-4">
                 <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">
-                  {job.category}
+                  {job.category?.name || 'Uncategorized'}
                 </span>
               </td>
               <td className="px-6 py-4">

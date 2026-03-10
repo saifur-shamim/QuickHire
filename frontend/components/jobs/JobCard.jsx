@@ -56,11 +56,11 @@ export default function JobCard({ job, featured = false }) {
           </div>
 
           <div className="flex gap-2 flex-wrap">
-            {job.categories?.map((cat, idx) => (
-              <span key={idx} className={`px-3 py-1 rounded-full text-xs font-medium ${getCategoryColor(cat)}`}>
-                {cat}
+            {job.category && (
+              <span className={`px-3 py-1 rounded-full text-xs font-medium ${getCategoryColor(job.category.name)}`}>
+                {job.category.name}
               </span>
-            ))}
+            )}
           </div>
         </div>
       </Link>
@@ -97,11 +97,11 @@ export default function JobCard({ job, featured = false }) {
             </div>
 
             <div className="flex gap-2 flex-wrap">
-              {job.categories?.map((cat, idx) => (
-                <span key={idx} className={`px-3 py-1 rounded-full text-xs font-medium ${getCategoryColor(cat)}`}>
-                  {cat}
+              {job.category && (
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${getCategoryColor(job.category.name)}`}>
+                  {job.category.name}
                 </span>
-              ))}
+              )}
             </div>
           </div>
         </div>

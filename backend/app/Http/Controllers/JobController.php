@@ -17,34 +17,26 @@ class JobController extends Controller
         try {
             $query = Job::query();
 
-            // Search by title, company, or description
-            if ($request->has('search')) {
-                $search = $request->input('search');
-                $query->where(function ($q) use ($search) {
-                    $q->where('title', 'like', "%{$search}%")
-                        ->orWhere('company', 'like', "%{$search}%")
-                        ->orWhere('description', 'like', "%{$search}%");
+            $query->when($request->search, function ($q) use ($request) {
+                $q->where(function ($sub) use ($request) {
+                    $sub->where('title', 'like', "%{$request->search}%")
+                        ->orWhere('company', 'like', "%{$request->search}%")
+                        ->orWhere('description', 'like', "%{$request->search}%");
                 });
-            }
+            });
 
-            // Filter by category
-            if ($request->has('category')) {
-                $query->where('category', $request->input('category'));
-            }
+            $query->when($request->category_id, fn($q) => $q->where('category_id', $request->category_id));
+            $query->when($request->location, fn($q) => $q->where('location', $request->location));
+            $query->when($request->type, fn($q) => $q->where('type', $request->type));
 
-            // Filter by location
-            if ($request->has('location')) {
-                $query->where('location', $request->input('location'));
-            }
-
-            // Filter by job type
-            if ($request->has('type')) {
-                $query->where('type', $request->input('type'));
+            // Filter by featured jobs only
+            if ($request->has('featured') && $request->input('featured') === 'true') {
+                $query->where('is_featured', true);
             }
 
             // Pagination
             $per_page = $request->input('per_page', 15);
-            $jobs = $query->orderByDesc('created_at')->paginate($per_page);
+            $jobs = $query->with('category')->orderByDesc('created_at')->paginate($per_page);
 
             return response()->json([
                 'success' => true,
@@ -97,7 +89,7 @@ class JobController extends Controller
     public function show(string $id): JsonResponse
     {
         try {
-            $job = Job::find($id);
+            $job = Job::with('category')->find($id);
 
             if (!$job) {
                 return response()->json([
@@ -179,5 +171,6 @@ class JobController extends Controller
                 'message' => 'Error deleting job',
                 'error' => $e->getMessage(),
             ], 500);
-        }    }
+        }
+    }
 }
