@@ -53,10 +53,11 @@ export default function JobsPage() {
     }
   }, [searchParams, categoriesLoaded]);
 
-  // Fetch jobs when filters change
+  // Fetch jobs when filters change (but NOT when categories list changes)
   useEffect(() => {
+    if (!categoriesLoaded || categories.length === 0) return;
     fetchJobs();
-  }, [selectedCategory, searchTerm, selectedLocation, categories]);
+  }, [selectedCategory, searchTerm, selectedLocation]);
 
   const fetchJobs = async () => {
     try {

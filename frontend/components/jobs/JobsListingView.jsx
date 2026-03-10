@@ -49,15 +49,10 @@ export default function JobsListingView({
       job.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       job.description?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    // Note: Category filtering is already done by API (category_id parameter)
-    // So we don't need to filter again here - just keep for reference
-    // But make it case-insensitive if needed
-    const matchCategory = !selectedCategory || 
-      (job.category && job.category.name.toLowerCase() === selectedCategory.toLowerCase());
-    
+    // Location filtering (category already filtered by API)
     const matchLocation = !selectedLocation || job.location?.toLowerCase() === selectedLocation?.toLowerCase();
     
-    return matchSearch && matchCategory && matchLocation;
+    return matchSearch && matchLocation;
   });
 
   return (
