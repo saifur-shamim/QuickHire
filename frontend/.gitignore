@@ -23,3 +23,5 @@ dist/
 
 # Testing
 .coverage
+ADMIN_FEATURED_JOBS_GUIDE.md
+FEATURED_JOBS_FIX.md

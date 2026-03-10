@@ -13,8 +13,8 @@ export default function FeaturedJobsSection({ jobs = [], loading = false }) {
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
             Featured <span className="text-gradient">jobs</span>
           </h2>
-          <Link href="/jobs" className="text-primary hover:text-purple-700 font-semibold flex items-center gap-2 transition-colors">
-            Show all jobs
+          <Link href="/jobs?featured=true" className="text-primary hover:text-purple-700 font-semibold flex items-center gap-2 transition-colors">
+            Show all featured
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>

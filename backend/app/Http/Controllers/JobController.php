@@ -29,9 +29,12 @@ class JobController extends Controller
             $query->when($request->location, fn($q) => $q->where('location', $request->location));
             $query->when($request->type, fn($q) => $q->where('type', $request->type));
 
-            // Filter by featured jobs only
+            // Filter by featured jobs - check for both 'featured' (from URL) and 'is_featured' (from API param)
             if ($request->has('featured') && $request->input('featured') === 'true') {
                 $query->where('is_featured', true);
+            }
+            if ($request->has('is_featured')) {
+                $query->where('is_featured', $request->input('is_featured'));
             }
 
             // Pagination

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -9,12 +9,14 @@ import { jobsAPI, categoriesAPI } from '@/services/api';
 
 export default function JobsPage() {
   const searchParams = useSearchParams();
+  const hasInitialFetch = useRef(false);
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
+  const [showFeaturedOnly, setShowFeaturedOnly] = useState(false);
   const [categories, setCategories] = useState([]);
   const [categoriesLoaded, setCategoriesLoaded] = useState(false);
 
@@ -51,13 +53,29 @@ export default function JobsPage() {
     if (searchParam) {
       setSearchTerm(searchParam);
     }
+
+    const featuredParam = searchParams.get('featured');
+    if (featuredParam === 'true') {
+      setShowFeaturedOnly(true);
+    } else {
+      setShowFeaturedOnly(false);
+    }
   }, [searchParams, categoriesLoaded]);
 
-  // Fetch jobs when filters change (but NOT when categories list changes)
+  // Fetch jobs on initial load (when categories are first loaded)
+  useEffect(() => {
+    if (!categoriesLoaded || categories.length === 0) return;
+    if (!hasInitialFetch.current) {
+      hasInitialFetch.current = true;
+      fetchJobs();
+    }
+  }, [categoriesLoaded]);
+
+  // Fetch jobs when filters change (including featured filter)
   useEffect(() => {
     if (!categoriesLoaded || categories.length === 0) return;
     fetchJobs();
-  }, [selectedCategory, searchTerm, selectedLocation]);
+  }, [selectedCategory, searchTerm, selectedLocation, showFeaturedOnly]);
 
   const fetchJobs = async () => {
     try {
@@ -77,8 +95,9 @@ export default function JobsPage() {
 
       const response = await jobsAPI.getAll({
         search: searchTerm,
-        category_id: categoryId, // Send numeric ID to API
+        category_id: categoryId,
         location: selectedLocation,
+        ...(showFeaturedOnly && { is_featured: 1 }),
         per_page: 50,
       });
       setJobs(response.data || []);
@@ -103,6 +122,7 @@ export default function JobsPage() {
         setSelectedCategory={setSelectedCategory}
         selectedLocation={selectedLocation}
         setSelectedLocation={setSelectedLocation}
+        showFeaturedOnly={showFeaturedOnly}
       />
       <Footer />
     </main>

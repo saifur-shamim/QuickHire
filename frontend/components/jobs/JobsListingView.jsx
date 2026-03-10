@@ -15,6 +15,7 @@ export default function JobsListingView({
   setSelectedCategory,
   selectedLocation,
   setSelectedLocation,
+  showFeaturedOnly = false,
 }) {
   const [showFilters, setShowFilters] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -49,10 +50,13 @@ export default function JobsListingView({
       job.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       job.description?.toLowerCase().includes(searchTerm.toLowerCase());
     
+    // Featured filter
+    const matchFeatured = !showFeaturedOnly || job.is_featured === true;
+    
     // Location filtering (category already filtered by API)
     const matchLocation = !selectedLocation || job.location?.toLowerCase() === selectedLocation?.toLowerCase();
     
-    return matchSearch && matchLocation;
+    return matchSearch && matchLocation && matchFeatured;
   });
 
   return (
@@ -61,7 +65,7 @@ export default function JobsListingView({
         {/* Header */}
         <div className="mb-12">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-            Find your dream job
+            {showFeaturedOnly ? '⭐ Featured Jobs' : 'Find your dream job'}
           </h1>
           <p className="text-gray-600">
             {loading ? 'Loading jobs...' : `Showing ${filteredJobs.length} of ${jobs.length} jobs`}
