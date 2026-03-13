@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Swal from 'sweetalert2';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import AdminDashboard from '@/components/admin/AdminDashboard';
@@ -36,10 +37,26 @@ export default function AdminPage() {
     try {
       await jobsAPI.create(jobData);
       await fetchJobsAndApplications();
-      alert('Job added successfully!');
+      await Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Job added successfully!',
+        confirmButtonColor: '#6f42c1',
+        confirmButtonText: 'OK',
+        timer: 2000,
+        timerProgressBar: true,
+        buttonsStyling: true,
+      });
     } catch (err) {
       console.error('Error adding job:', err);
-      alert('Failed to add job');
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Failed to add job. Please try again.',
+        confirmButtonColor: '#dc3545',
+        confirmButtonText: 'OK',
+        buttonsStyling: true,
+      });
     }
   };
 
@@ -47,22 +64,71 @@ export default function AdminPage() {
     try {
       await jobsAPI.update(jobId, jobData);
       await fetchJobsAndApplications();
-      alert('Job updated successfully!');
+      await Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Job updated successfully!',
+        confirmButtonColor: '#6f42c1',
+        confirmButtonText: 'OK',
+        timer: 2000,
+        timerProgressBar: true,
+        buttonsStyling: true,
+      });
     } catch (err) {
       console.error('Error updating job:', err);
-      alert('Failed to update job');
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Failed to update job. Please try again.',
+        confirmButtonColor: '#dc3545',
+        confirmButtonText: 'OK',
+        buttonsStyling: true,
+      });
     }
   };
 
   const handleDeleteJob = async (jobId) => {
-    if (confirm('Are you sure you want to delete this job?')) {
+    const result = await Swal.fire({
+      icon: 'warning',
+      title: 'Delete Job?',
+      text: 'Are you sure you want to delete this job? This action cannot be undone.',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, Delete',
+      cancelButtonText: 'Cancel',
+      buttonsStyling: true,
+      reverseButtons: true,
+      customClass: {
+        confirmButton: 'swal-btn-delete',
+        cancelButton: 'swal-btn-cancel',
+      },
+    });
+
+    if (result.isConfirmed) {
       try {
         await jobsAPI.delete(jobId);
         await fetchJobsAndApplications();
-        alert('Job deleted successfully!');
+        await Swal.fire({
+          icon: 'success',
+          title: 'Deleted!',
+          text: 'Job deleted successfully!',
+          confirmButtonColor: '#6f42c1',
+          confirmButtonText: 'OK',
+          timer: 2000,
+          timerProgressBar: true,
+          buttonsStyling: true,
+        });
       } catch (err) {
         console.error('Error deleting job:', err);
-        alert('Failed to delete job');
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: 'Failed to delete job. Please try again.',
+          confirmButtonColor: '#dc3545',
+          confirmButtonText: 'OK',
+          buttonsStyling: true,
+        });
       }
     }
   };

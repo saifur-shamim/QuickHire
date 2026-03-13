@@ -78,3 +78,46 @@ body {
 .animate-fadeInUp {
   animation: fadeInUp 0.6s ease-out;
 }
+
+/* SweetAlert2 Custom Button Styling */
+.swal-btn-delete {
+  @apply bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-200 !important;
+  min-width: 120px;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.swal-btn-delete:hover {
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+.swal-btn-cancel {
+  @apply bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-200 !important;
+  min-width: 120px;
+  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+}
+
+.swal-btn-cancel:hover {
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
+}
+
+/* SweetAlert2 Overall Styling */
+.swal2-popup {
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.swal2-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.swal2-html-container {
+  font-size: 1rem;
+  color: #6b7280;
+}
+
+.swal2-actions {
+  gap: 12px;
+  margin-top: 24px;
+}
