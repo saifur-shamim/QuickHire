@@ -14,20 +14,19 @@ export default function AdminPromoBanner() {
               <p className="text-white/80 text-lg mb-8">
                 Start posting jobs for only $10.
               </p>
-              <Link href="/admin" className="btn-primary bg-white text-primary hover:bg-gray-100 w-fit">
+              <Link href="/admin" className="px-8 py-3 rounded-lg font-semibold w-fit bg-white text-primary hover:bg-gray-100 transition-colors">
                 Sign Up For Free
               </Link>
             </div>
 
             {/* Right Illustration */}
             <div className="hidden md:flex items-center justify-center">
-              <div className="relative w-full h-64 bg-white/20 rounded-2xl flex items-center justify-center">
-                <div className="text-center">
-                  <svg className="w-32 h-32 text-white/40 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <p className="text-white/60 text-sm">Admin Dashboard</p>
-                </div>
+              <div className="relative w-full h-64 rounded-2xl overflow-hidden">
+                <img 
+                  src="/images/dashboard.png" 
+                  alt="Admin Dashboard"
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
           </div>

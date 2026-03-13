@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { categoriesAPI, jobsAPI } from '@/services/api';
+import { FaPalette, FaChartBar, FaBullseye, FaCoins, FaLaptopCode, FaCode, FaBriefcase, FaUsers } from 'react-icons/fa';
 
 export default function CategoriesSection() {
   const [categories, setCategories] = useState([]);
@@ -40,16 +41,16 @@ export default function CategoriesSection() {
 
   const getCategoryIcon = (categoryName) => {
     const iconMap = {
-      'design': '✨',
-      'sales': '📊',
-      'marketing': '🎯',
-      'finance': '💰',
-      'technology': '💻',
-      'engineering': '</>',
-      'business': '💼',
-      'human resource': '👥',
+      'design': FaPalette,
+      'sales': FaChartBar,
+      'marketing': FaBullseye,
+      'finance': FaCoins,
+      'technology': FaLaptopCode,
+      'engineering': FaCode,
+      'business': FaBriefcase,
+      'human resource': FaUsers,
     };
-    return iconMap[categoryName.toLowerCase()] || '💼';
+    return iconMap[categoryName.toLowerCase()] || FaBriefcase;
   };
 
   return (
@@ -70,24 +71,21 @@ export default function CategoriesSection() {
 
         {/* Categories Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {categories.map((category, index) => {
+          {categories.map((category) => {
             const jobCount = categoryCounts[category.id] || 0;
-            const isHighlighted = index === 2; // Marketing is highlighted (like original design)
-            const icon = getCategoryIcon(category.name);
+            const IconComponent = getCategoryIcon(category.name);
             
             return (
               <Link
                 key={category.id}
                 href={`/jobs?category=${category.name.toLowerCase()}`}
-                className={`p-6 rounded-xl transition-all duration-300 hover:shadow-lg cursor-pointer transform hover:scale-105 ${
-                  isHighlighted
-                    ? 'bg-gradient-to-br from-primary to-secondary text-white'
-                    : 'bg-gray-50 text-gray-900 hover:bg-gray-100'
-                }`}
+                className="p-6 rounded-xl transition-all duration-300 bg-gray-50 text-gray-900 hover:bg-gradient-to-br hover:from-primary hover:to-secondary hover:text-white hover:shadow-lg cursor-pointer transform hover:scale-105"
               >
-                <div className="text-4xl mb-4">{icon}</div>
+                <div className="text-4xl mb-4">
+                  <IconComponent className="w-10 h-10" />
+                </div>
                 <h3 className="font-semibold text-lg mb-2">{category.name}</h3>
-                <div className={isHighlighted ? 'text-white/80' : 'text-gray-600'}>
+                <div className="text-gray-600 hover:text-white/80">
                   {jobCount} {jobCount === 1 ? 'job available' : 'jobs available'}
                 </div>
                 <div className="flex items-center gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
