@@ -21,3 +21,5 @@ Route::get('/applications', [ApplicationController::class, 'index']);
 Route::get('/applications/{id}', [ApplicationController::class, 'show']);
 Route::delete('/applications/{id}', [ApplicationController::class, 'destroy']);
 Route::get('/jobs/{jobId}/applications', [ApplicationController::class, 'jobApplications']);
+
+
