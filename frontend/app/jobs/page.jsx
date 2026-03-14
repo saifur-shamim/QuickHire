@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import JobsListingView from '@/components/jobs/JobsListingView';
 import { jobsAPI, categoriesAPI } from '@/services/api';
 
-export default function JobsPage() {
+function JobsContent() {
   const searchParams = useSearchParams();
   const hasInitialFetch = useRef(false);
   const [jobs, setJobs] = useState([]);
@@ -126,5 +126,13 @@ export default function JobsPage() {
       />
       <Footer />
     </main>
+  );
+}
+
+export default function JobsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <JobsContent />
+    </Suspense>
   );
 }
