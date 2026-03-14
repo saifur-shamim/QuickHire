@@ -26,7 +26,7 @@ export default function ApplicationsList({ applications = [] }) {
                   <p className="text-gray-600">{app.email}</p>
                 </td>
                 <td className="px-6 py-4">
-                  <p className="text-gray-600">{app.job_listing?.title || 'Job Deleted'}</p>
+                  <p className="text-gray-600">{app.job?.title || 'Job Deleted'}</p>
                 </td>
                 <td className="px-6 py-4">
                   {app.resume_link ? (

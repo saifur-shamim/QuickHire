@@ -278,7 +278,69 @@ curl http://localhost:8000/api/categories
 
 Open `http://localhost:3000` in your browser
 
-### 4.1: Test Home Page
+### 4.1: Test Admin Dashboard (Primary Management Interface) 🎛️
+
+**Navigate to:** `/admin` (or click admin link in navigation)
+
+**Admin Dashboard Overview:**
+The admin panel is where you manage all job postings and view applications submitted by users.
+
+**What you can do:**
+1. ✅ **View all jobs** - See every job posting in a table format
+2. ✅ **Add new jobs** - Create new job postings
+3. ✅ **Edit jobs** - Modify existing job details
+4. ✅ **Delete jobs** - Remove job postings
+5. ✅ **View applications** - See all applications submitted by users
+6. ✅ **Manage featured jobs** - Mark jobs as featured to highlight them
+
+**Test Add Job:**
+1. Click "Add New Job" button
+2. Fill form fields:
+   - Title: "Test Job"
+   - Company: "Test Company"
+   - Location: "Test City"
+   - **Category:** Select from dropdown (fetches from database categories)
+   - Type: "Full Time"
+   - Minimum Salary: 60000
+   - Maximum Salary: 100000
+   - **Featured Job:** Check box to mark as featured (optional)
+   - Description: "Test description"
+   - Requirements: Enter requirements (one per line)
+   - Benefits: Enter benefits (one per line)
+3. Click Submit
+4. Verify success message
+5. New job appears in:
+   - Home page > Latest jobs section
+   - If marked featured: Home page > Featured jobs section
+   - Jobs listing page
+
+**Test Edit Job:**
+1. In admin table, find a job
+2. Click Edit button
+3. Modify any field
+4. Click Save
+5. Verify changes appear immediately
+
+**Test Delete Job:**
+1. Click Delete button on any job
+2. Confirm deletion in alert dialog
+3. Job disappears from admin table
+4. Job no longer appears on home page or jobs listing
+
+**View Applications:**
+1. Click on "Applications" tab in admin dashboard
+2. See all applications with:
+   - Applicant name
+   - Email address
+   - Job applied for
+   - Resume link
+   - Cover note
+3. Click email to contact applicant
+4. Delete applications as needed
+
+---
+
+### 4.2: Test Home Page
 
 **What to verify:**
 - ✅ Header with logo and navigation visible
@@ -295,7 +357,7 @@ Open `http://localhost:3000` in your browser
 - Check browser console for errors (F12 → Console tab)
 - Verify `.env.local` API URL is correct
 
-### 4.2: Test Jobs Listing Page
+### 4.3: Test Jobs Listing Page
 
 **Navigate to:** Click "Browse Jobs" or go to `/jobs`
 
@@ -318,7 +380,7 @@ Open `http://localhost:3000` in your browser
 2. Should show only jobs in that category
 3. Category filtering now uses database category relationships
 
-### 4.2.1: Test Featured Jobs Section (New Feature)
+### 4.3.1: Test Featured Jobs Section (New Feature)
 
 **From home page:** Scroll to "Featured jobs" section
 
@@ -336,7 +398,7 @@ Open `http://localhost:3000` in your browser
 4. Submit the form
 5. Return to home page and verify job appears in Featured jobs section
 
-### 4.3: Test Job Detail Page
+### 4.4: Test Job Detail Page
 
 **Click any job card**
 
@@ -350,7 +412,7 @@ Open `http://localhost:3000` in your browser
 - ✅ "Apply Now" button visible
 - ✅ All job information matches API data
 
-### 4.4: Test Application Form
+### 4.5: Test Application Form
 
 **From job detail, click "Apply Now"**
 
@@ -377,46 +439,7 @@ Open `http://localhost:3000` in your browser
 mysql quickhire -u root -p -e "SELECT * FROM applications;"
 ```
 
-### 4.5: Test Admin Dashboard
-
-**Navigate to:** `/admin` (or add admin link to navigation)
-
-**What to verify:**
-- ✅ All jobs from database display in table
-- ✅ "Add New Job" button visible
-- ✅ Delete button works for each job
-- ✅ Edit button (if implemented) works
-
-**Test Add Job:**
-1. Click "Add New Job"
-2. Fill form fields:
-   - Title: "Test Job"
-   - Company: "Test Company"
-   - Location: "Test City"
-   - **Category:** Select from dropdown (now fetches from database categories)
-   - Type: "Full Time"
-   - Minimum Salary: 60000
-   - Maximum Salary: 100000
-   - **Featured Job:** Check box to mark as featured (optional)
-   - Description: "Test description"
-   - Requirements: Enter requirements (one per line)
-   - Benefits: Enter benefits (one per line)
-3. Click Submit
-4. Verify success message
-5. New job appears in:
-   - Home page > Latest jobs section
-   - If marked featured: Home page > Featured jobs section
-   - Jobs listing page
-
-**Test Delete Job:**
-1. Click Delete button on any job
-2. Confirm deletion
-3. Job disappears from list
-4. Job no longer appears on home page or jobs listing
-
----
-
-## ✅ STEP 5: Responsive Design Testing
+### 4.6: Test Responsive Design
 
 ### Test on Different Screen Sizes
 
@@ -586,105 +609,3 @@ exit
 - [ ] API returns correct status codes
 - [ ] Error messages display properly
 
----
-
-## 📱 TESTING WITH MOBILE DEVICE (Optional)
-
-### Connect Physical Device
-
-1. **Get your computer IP:**
-   ```bash
-   ifconfig | grep "inet " | grep -v "127.0.0.1"
-   # Note: something like 192.168.x.x
-   ```
-
-2. **Update frontend environment:**
-   ```bash
-   # In .env.local, replace localhost with your IP:
-   NEXT_PUBLIC_API_URL=http://192.168.x.x:8000/api
-   ```
-
-3. **Update backend CORS (if needed):**
-   In `app/Http/Middleware/AddCorsHeaders.php`:
-   ```php
-   'Access-Control-Allow-Origin' => 'http://192.168.x.x:3000',
-   ```
-
-4. **On mobile browser:**
-   - Go to: `http://192.168.x.x:3000`
-   - Test all features same as desktop
-
----
-
-## 📊 PERFORMANCE TIPS
-
-- Check Network tab for slow API responses
-- Use React DevTools to check component renders
-- Verify database queries are optimized
-- Monitor backend logs for slow queries
-
----
-
-## 🎉 SUCCESS!
-
-If all items in the checklist pass, your QuickHire application is fully functional!
-
-**Next steps:**
-- Deploy frontend to Vercel
-- Deploy backend to Railway/Render
-- Set up production database
-- Update API URLs for production
-- Set up error monitoring (Sentry, etc.)
-
----
-
-## 📞 QUICK COMMANDS REFERENCE
-
-```bash
-# Backend
-cd backend
-php artisan serve --host=0.0.0.0 --port=8000
-php artisan migrate
-php artisan tinker
-
-# Frontend
-cd frontend
-npm install
-npm run dev
-npm run build
-
-# Database - Setup
-mysql -u root -p
-CREATE DATABASE quickhire;
-USE quickhire;
-SHOW TABLES;
-
-# Database - View Data
-SELECT * FROM categories;
-SELECT * FROM job_listings;
-SELECT * FROM job_applications;
-SELECT * FROM jobs; # Laravel queue table (ignore)
-
-# API Endpoints - Jobs
-curl http://localhost:8000/api/jobs
-curl http://localhost:8000/api/jobs/1
-curl http://localhost:8000/api/jobs?featured=true # Get featured jobs only
-curl http://localhost:8000/api/jobs?category_id=1 # Get jobs by category
-
-# API Endpoints - Categories (New)
-curl http://localhost:8000/api/categories
-
-# API Endpoints - Applications
-curl http://localhost:8000/api/applications
-curl http://localhost:8000/api/jobs/1/applications
-
-# Useful system checks
-curl http://localhost:8000/api/jobs
-curl http://localhost:3000
-lsof -i :8000  # Check if port 8000 is in use
-lsof -i :3000  # Check if port 3000 is in use
-```
-
----
-
-**Happy Testing! 🚀**

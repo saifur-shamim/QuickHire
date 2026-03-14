@@ -68,7 +68,7 @@ QuickHire/
 - **Database:** MySQL
 - **API Format:** RESTful JSON
 
-## 📋 Requirements Completed
+## 📋 Features
 
 ### ✅ Frontend (Next.js/React)
 
@@ -315,18 +315,32 @@ UI follows the Figma template closely with:
 - Email: Required, valid email format
 - Resume Link: Required, valid URL
 - Cover Note: Required, text
+## 📖 Testing Guide
 
-## 🚢 Deployment
+For comprehensive testing instructions, refer to the **[Complete Testing Guide](TESTING_GUIDE.md)**. This guide covers:
+- Backend setup and API endpoint testing
+- Frontend feature verification
+- Database schema overview
+- Error handling testing
+- Responsive design validation
+- Troubleshooting common issues
+## � Testing Guide
 
-### Frontend
-- Deploy to Vercel, Netlify, or any Node.js host
-- Set `NEXT_PUBLIC_API_URL` environment variable
+For comprehensive testing instructions, refer to the **[Complete Testing Guide](TESTING_GUIDE.md)**. This guide covers:
+- Backend setup and API endpoint testing
+- Frontend feature verification
+- Database schema overview
+- Error handling testing
+- Responsive design validation
+- Troubleshooting common issues
 
-### Backend
-- Deploy to Railway, Render, Heroku, or traditional hosting
-- Configure database connection
-- Set environment variables
-- Run migrations on deployment
+## �🚢 Deployment
+
+**Frontend Live Link:**  
+https://quick-hire-virid-eight.vercel.app/
+
+**Backend Live Link:**  
+https://quickhire-production-e3cd.up.railway.app/
 
 ## 📞 Support
 
