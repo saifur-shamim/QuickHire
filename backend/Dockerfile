@@ -35,10 +35,10 @@ RUN echo '<VirtualHost *:80>\n\
     </Directory>\n\
 </VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
-EXPOSE 80
+EXPOSE 8000
 
-# Start: run migrations then Apache
+# Start: run migrations then serve
 CMD php artisan config:cache && \
     php artisan route:cache && \
     php artisan migrate --force && \
-    apache2-foreground
+    php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
