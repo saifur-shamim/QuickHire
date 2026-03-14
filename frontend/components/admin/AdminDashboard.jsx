@@ -288,7 +288,6 @@ export default function AdminDashboard({
   );
 }
 
-  const [showJobForm, setShowJobForm] = useState(false);
   const [editingJob, setEditingJob] = useState(null);
   const [activeTab, setActiveTab] = useState('jobs');
 
