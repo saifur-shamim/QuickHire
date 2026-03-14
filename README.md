@@ -315,15 +315,7 @@ UI follows the Figma template closely with:
 - Email: Required, valid email format
 - Resume Link: Required, valid URL
 - Cover Note: Required, text
-## 📖 Testing Guide
 
-For comprehensive testing instructions, refer to the **[Complete Testing Guide](TESTING_GUIDE.md)**. This guide covers:
-- Backend setup and API endpoint testing
-- Frontend feature verification
-- Database schema overview
-- Error handling testing
-- Responsive design validation
-- Troubleshooting common issues
 ## � Testing Guide
 
 For comprehensive testing instructions, refer to the **[Complete Testing Guide](TESTING_GUIDE.md)**. This guide covers:
