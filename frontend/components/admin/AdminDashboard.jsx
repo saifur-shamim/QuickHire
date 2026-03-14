@@ -15,6 +15,8 @@ export default function AdminDashboard({
   categoryId = '',
   page = 1,
   pagination = null,
+  applicationSearch = '',
+  onApplicationSearch,
   onSearchChange,
   onCategoryChange,
   onPageChange,
@@ -22,6 +24,7 @@ export default function AdminDashboard({
   onEditJob,
   onDeleteJob,
   onRefresh,
+  applicationPagination = null,
 }) {
   const [showJobForm, setShowJobForm] = useState(false);
   const [editingJob, setEditingJob] = useState(null);
@@ -29,7 +32,7 @@ export default function AdminDashboard({
 
   const totalJobs = pagination?.total ?? jobs.length;
   const featuredJobs = jobs.filter((j) => j.is_featured === true).length;
-  const totalApplications = applications.length;
+  const totalApplications = applicationPagination?.total ?? applications.length;
 
   const handleAddOrEditJob = async (formData) => {
     if (editingJob) {
@@ -128,17 +131,15 @@ export default function AdminDashboard({
           <div className="border-b border-gray-200 flex">
             <button
               onClick={() => setActiveTab('jobs')}
-              className={`flex-1 py-4 px-6 font-semibold text-center transition-colors ${
-                activeTab === 'jobs' ? 'text-primary border-b-2 border-primary' : 'text-gray-600 hover:text-gray-900'
-              }`}
+              className={`flex-1 py-4 px-6 font-semibold text-center transition-colors ${activeTab === 'jobs' ? 'text-primary border-b-2 border-primary' : 'text-gray-600 hover:text-gray-900'
+                }`}
             >
               🏢 Job Listings ({totalJobs})
             </button>
             <button
               onClick={() => setActiveTab('applications')}
-              className={`flex-1 py-4 px-6 font-semibold text-center transition-colors ${
-                activeTab === 'applications' ? 'text-primary border-b-2 border-primary' : 'text-gray-600 hover:text-gray-900'
-              }`}
+              className={`flex-1 py-4 px-6 font-semibold text-center transition-colors ${activeTab === 'applications' ? 'text-primary border-b-2 border-primary' : 'text-gray-600 hover:text-gray-900'
+                }`}
             >
               📨 Applications ({totalApplications})
             </button>
@@ -223,11 +224,10 @@ export default function AdminDashboard({
                               <button
                                 key={p}
                                 onClick={() => onPageChange?.(p)}
-                                className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${
-                                  p === page
-                                    ? 'bg-primary text-white border border-primary'
-                                    : 'border border-gray-200 text-gray-700 hover:bg-gray-50'
-                                }`}
+                                className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${p === page
+                                  ? 'bg-primary text-white border border-primary'
+                                  : 'border border-gray-200 text-gray-700 hover:bg-gray-50'
+                                  }`}
                               >
                                 {p}
                               </button>
@@ -264,13 +264,47 @@ export default function AdminDashboard({
             )}
 
             {activeTab === 'applications' && (
-              loading ? (
-                <div className="flex justify-center items-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary"></div>
+              <>
+                {/* Search bar */}
+                <div className="flex flex-col sm:flex-row gap-3 mb-5">
+                  <div className="relative flex-1">
+                    <svg
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                        d="M21 21l-4.35-4.35M17 11A6 6 0 111 11a6 6 0 0116 0z" />
+                    </svg>
+
+                    <input
+                      type="text"
+                      value={applicationSearch}
+                      onChange={(e) => onApplicationSearch?.(e.target.value)}
+                      placeholder="Search by applicant name, email, or job title..."
+                      className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                    />
+
+                    {applicationSearch && (
+                      <button
+                        onClick={() => onApplicationSearch?.('')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
                 </div>
-              ) : (
-                <ApplicationsList applications={applications} />
-              )
+
+                {loading ? (
+                  <div className="flex justify-center items-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary"></div>
+                  </div>
+                ) : (
+                  <ApplicationsList applications={applications} />
+                )}
+              </>
             )}
           </div>
         </div>

@@ -23,8 +23,24 @@ class ApplicationController extends Controller
                 $query->where('job_listing_id', $request->input('job_listing_id'));
             }
 
+            // Search by applicant name, email, or job title
+            if ($request->search) {
+                $search = $request->search;
+
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhereHas('job', function ($jobQuery) use ($search) {
+                            $jobQuery->where('title', 'like', "%{$search}%");
+                        });
+                });
+            }
+
             $per_page = $request->input('per_page', 20);
-            $applications = $query->orderByDesc('created_at')->paginate($per_page);
+
+            $applications = $query
+                ->orderByDesc('created_at')
+                ->paginate($per_page);
 
             return response()->json([
                 'success' => true,
@@ -45,7 +61,6 @@ class ApplicationController extends Controller
             ], 500);
         }
     }
-
     /**
      * Store a newly created application
      */
@@ -159,5 +174,6 @@ class ApplicationController extends Controller
                 'message' => 'Error deleting application',
                 'error' => $e->getMessage(),
             ], 500);
-        }    }
+        }
+    }
 }

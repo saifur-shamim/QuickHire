@@ -16,6 +16,10 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [applicationSearch, setApplicationSearch] = useState('');
+  const [applicationPage, setApplicationPage] = useState(1);
+  const [applicationPagination, setApplicationPagination] = useState(null);
+
   // Search / filter / pagination state
   const [search, setSearch] = useState('');
   const [categoryId, setCategoryId] = useState('');
@@ -60,15 +64,19 @@ export default function AdminPage() {
     }
   };
 
-  const fetchApplications = async () => {
+  const fetchApplications = async (p, s) => {
+    const currentPage = p ?? applicationPage;
+    const currentSearch = s ?? applicationSearch;
     try {
-      const res = await applicationsAPI.getAll();
+      const params = { page: currentPage, per_page: 20 };
+      if (currentSearch) params.search = currentSearch;
+      const res = await applicationsAPI.getAll(params);
       setApplications(res.data || []);
+      setApplicationPagination(res.pagination || null);
     } catch (err) {
       console.error('Error fetching applications:', err);
     }
   };
-
   const fetchCategories = async () => {
     try {
       const res = await categoriesAPI.getAll();
@@ -80,10 +88,22 @@ export default function AdminPage() {
 
   useEffect(() => {
     fetchJobs(1, '', '');
-    fetchApplications();
+    fetchApplications(1, '');
     fetchCategories();
   }, []);
 
+  const debounceApplicationRef = useRef(null);
+
+  const handleApplicationSearch = (value) => {
+    setApplicationSearch(value);
+    setApplicationPage(1);
+
+    clearTimeout(debounceApplicationRef.current);
+
+    debounceApplicationRef.current = setTimeout(() => {
+      fetchApplications(1, value);
+    }, 400);
+  };
   const handleAddJob = async (jobData) => {
     try {
       await jobsAPI.create(jobData);
@@ -193,13 +213,20 @@ export default function AdminPage() {
         categoryId={categoryId}
         page={page}
         pagination={pagination}
+
+        applicationSearch={applicationSearch}
+        onApplicationSearch={handleApplicationSearch}
+
         onSearchChange={handleSearchChange}
         onCategoryChange={handleCategoryChange}
         onPageChange={handlePageChange}
+
         onAddJob={handleAddJob}
         onEditJob={handleEditJob}
         onDeleteJob={handleDeleteJob}
         onRefresh={() => fetchJobs()}
+
+        applicationPagination={applicationPagination}
       />
       <Footer />
     </main>

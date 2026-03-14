@@ -1,12 +1,13 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
 // Create axios instance with default config
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -15,7 +16,7 @@ export const jobsAPI = {
   // Get all jobs
   getAll: async (params = {}) => {
     try {
-      const response = await apiClient.get('/jobs', { params });
+      const response = await apiClient.get("/jobs", { params });
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -35,7 +36,7 @@ export const jobsAPI = {
   // Create new job (Admin)
   create: async (jobData) => {
     try {
-      const response = await apiClient.post('/jobs', jobData);
+      const response = await apiClient.post("/jobs", jobData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -65,7 +66,9 @@ export const jobsAPI = {
   // Search/Filter jobs
   search: async (searchParams) => {
     try {
-      const response = await apiClient.get('/jobs/search', { params: searchParams });
+      const response = await apiClient.get("/jobs/search", {
+        params: searchParams,
+      });
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -78,7 +81,7 @@ export const applicationsAPI = {
   // Submit application
   create: async (applicationData) => {
     try {
-      const response = await apiClient.post('/applications', applicationData);
+      const response = await apiClient.post("/applications", applicationData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -96,9 +99,9 @@ export const applicationsAPI = {
   },
 
   // Get all applications (Admin)
-  getAll: async () => {
+  getAll: async (params = {}) => {
     try {
-      const response = await apiClient.get('/applications');
+      const response = await apiClient.get("/applications", { params }); 
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -111,7 +114,7 @@ export const categoriesAPI = {
   // Get all categories
   getAll: async () => {
     try {
-      const response = await apiClient.get('/categories');
+      const response = await apiClient.get("/categories");
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
